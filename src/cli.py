@@ -34,6 +34,12 @@ def main():
     help="Claude model to use (e.g., claude-sonnet-4-20250514, claude-opus-4-6)",
 )
 @click.option(
+    "--oauth-token",
+    type=str,
+    default=None,
+    help="Anthropic OAuth token (from Claude Code / Claude Max)",
+)
+@click.option(
     "--original-url",
     type=str,
     default=None,
@@ -45,7 +51,7 @@ def main():
     default=None,
     help="Override migrated site URL",
 )
-def audit(checkers, no_cache, headed, output_dir, model, original_url, migrated_url):
+def audit(checkers, no_cache, headed, output_dir, model, oauth_token, original_url, migrated_url):
     """Run a full or partial migration audit."""
     settings = Settings()
 
@@ -55,6 +61,8 @@ def audit(checkers, no_cache, headed, output_dir, model, original_url, migrated_
         settings.output_dir = Path(output_dir)
     if model:
         settings.llm_model = model
+    if oauth_token:
+        settings.anthropic_oauth_token = oauth_token
     if original_url:
         settings.original_url = original_url
     if migrated_url:

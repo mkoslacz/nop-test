@@ -120,17 +120,22 @@ class AuditRunner:
 
         renderer = MarkdownRenderer(self.settings.output_dir / "reports")
 
-        if not self.settings.anthropic_api_key:
+        has_auth = self.settings.anthropic_api_key or self.settings.anthropic_oauth_token
+        if not has_auth:
             self.console.print(
-                "\n[yellow]No ANTHROPIC_API_KEY set. "
+                "\n[yellow]No ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN set. "
                 "Generating raw data report without LLM synthesis.[/yellow]"
             )
             return self._render_raw(results, renderer)
 
-        self.console.print("\n[bold]Synthesizing report with Claude...[/bold]")
+        auth_method = "OAuth token" if self.settings.anthropic_oauth_token else "API key"
+        self.console.print(
+            f"\n[bold]Synthesizing report with Claude ({auth_method})...[/bold]"
+        )
         try:
             llm = LLMClient(
                 api_key=self.settings.anthropic_api_key,
+                oauth_token=self.settings.anthropic_oauth_token,
                 model=self.settings.llm_model,
             )
             synthesizer = Synthesizer(llm, log=self.console.print)

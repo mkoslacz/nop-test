@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     output_dir: Path = Path("./output")
     cache_enabled: bool = True
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
+    anthropic_oauth_token: str = Field(default="", alias="ANTHROPIC_OAUTH_TOKEN")
     llm_model: str = "claude-sonnet-4-20250514"
     page_timeout: int = 30000
     action_timeout: int = 5000

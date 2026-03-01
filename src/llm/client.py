@@ -9,13 +9,26 @@ import anthropic
 class LLMClient:
     """Wraps Anthropic API for text and vision analysis.
 
-    Authentication: Set ANTHROPIC_API_KEY env var with your Anthropic API key.
-    Note: Claude Max/Pro OAuth tokens cannot be used in third-party apps per
-    Anthropic's ToS — an API key with usage-based billing is required.
+    Supports two auth methods:
+    - API key: standard ANTHROPIC_API_KEY with usage-based billing
+    - OAuth token: ANTHROPIC_OAUTH_TOKEN from Claude Code / Claude Max subscription
     """
 
-    def __init__(self, api_key: str, model: str = "claude-sonnet-4-20250514"):
-        self.client = anthropic.Anthropic(api_key=api_key)
+    def __init__(
+        self,
+        api_key: str = "",
+        oauth_token: str = "",
+        model: str = "claude-sonnet-4-20250514",
+    ):
+        if oauth_token:
+            self.client = anthropic.Anthropic(
+                api_key="oauth",
+                auth_token=oauth_token,
+            )
+        elif api_key:
+            self.client = anthropic.Anthropic(api_key=api_key)
+        else:
+            raise ValueError("Either api_key or oauth_token must be provided")
         self.model = model
 
     def analyze_text(

@@ -28,13 +28,15 @@ A Markdown report with issues categorized by severity:
 
 Each issue includes: description, step-by-step reproduction, expected vs actual behavior, affected viewports, and related URLs.
 
-When the Claude API key is configured, the report is synthesized by an LLM that also performs visual screenshot comparison. Without an API key, a raw data report is generated instead.
+When Claude auth is configured (API key or OAuth token), the report is synthesized by an LLM that also performs visual screenshot comparison. Without auth, a raw data report is generated instead.
 
 ## Requirements
 
 - Python 3.11+
 - Chromium (installed automatically via Playwright)
-- [Anthropic API key](https://console.anthropic.com/) (optional — for LLM-powered report synthesis)
+- Anthropic auth (optional — for LLM-powered report synthesis):
+  - **API key** from [console.anthropic.com](https://console.anthropic.com/), or
+  - **OAuth token** from Claude Code / Claude Max subscription
 
 ## Setup
 
@@ -49,9 +51,9 @@ source .venv/bin/activate
 pip install -e .
 playwright install chromium
 
-# (Optional) Configure API key for LLM synthesis
-cp .env.example .env
-# Edit .env and set ANTHROPIC_API_KEY
+# (Optional) Configure auth for LLM synthesis — pick one:
+export ANTHROPIC_API_KEY=sk-ant-...        # API key
+export ANTHROPIC_OAUTH_TOKEN=oat-...       # or OAuth token from Claude Max
 ```
 
 ## Usage
@@ -68,6 +70,9 @@ nop-test audit --no-cache
 
 # Use a different Claude model
 nop-test audit --model claude-opus-4-6
+
+# Use OAuth token directly from CLI
+nop-test audit --oauth-token oat-...
 
 # Debug with visible browser window
 nop-test audit -c visual --headed
@@ -89,6 +94,7 @@ Environment variables (or `.env` file):
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | _(none)_ | Anthropic API key for LLM synthesis |
+| `ANTHROPIC_OAUTH_TOKEN` | _(none)_ | OAuth token from Claude Code / Claude Max (takes priority over API key) |
 | `NOP_ORIGINAL_URL` | `https://noclegi.pl` | Original site URL |
 | `NOP_MIGRATED_URL` | `https://nop-go.noclegi.pl` | Migrated site URL |
 | `NOP_OUTPUT_DIR` | `./output` | Output directory for reports and screenshots |
