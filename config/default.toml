@@ -1,0 +1,30 @@
+[urls]
+original = "https://noclegi.pl"
+migrated = "https://nop-go.noclegi.pl"
+
+[viewports]
+mobile = [375, 812]
+tablet = [768, 1024]
+desktop = [1440, 900]
+
+[checkers]
+enabled = "all"
+page_timeout = 30000
+action_timeout = 5000
+
+[links]
+migrated_domains = ["nop-go.noclegi.pl"]
+original_domain = "noclegi.pl"
+skip_external = true
+
+[cache]
+enabled = true
+ttl_hours = 24
+
+[llm]
+model = "claude-sonnet-4-20250514"
+max_tokens = 8192
+max_screenshots_per_call = 6
+
+[output]
+dir = "./output"

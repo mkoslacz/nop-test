@@ -1,0 +1,31 @@
+[project]
+name = "nop-test"
+version = "0.1.0"
+description = "Website migration audit tool for noclegi.pl → nop-go.noclegi.pl"
+requires-python = ">=3.11"
+dependencies = [
+    "playwright>=1.49",
+    "anthropic>=0.42",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    "click>=8.1",
+    "Pillow>=11.0",
+    "rich>=13.9",
+    "httpx>=0.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[project.scripts]
+nop-test = "src.cli:main"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["src*", "config*"]
