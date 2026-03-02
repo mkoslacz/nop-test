@@ -10,6 +10,7 @@ from src.checkers.base import BaseChecker
 from src.checkers.content import ContentChecker
 from src.checkers.forms import FormsChecker
 from src.checkers.links import LinkChecker
+from src.checkers.llm_review import LLMReviewChecker
 from src.checkers.navigation import NavigationChecker
 from src.checkers.performance import PerformanceChecker
 from src.checkers.responsive import ResponsiveChecker
@@ -28,6 +29,7 @@ CHECKER_REGISTRY: dict[str, type[BaseChecker]] = {
     "forms": FormsChecker,
     "responsive": ResponsiveChecker,
     "performance": PerformanceChecker,
+    "llm_review": LLMReviewChecker,
 }
 
 

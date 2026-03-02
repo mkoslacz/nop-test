@@ -46,7 +46,11 @@ bug report for developers.
 ## Instructions
 
 1. Review ALL the raw data from every checker carefully
-2. Group related findings into distinct issues (don't duplicate)
+2. Pay special attention to the "llm_open_review" section — it contains findings from a \
+separate open-ended analysis of raw page structure that may catch things the automated \
+checkers missed (accessibility, favicons, third-party scripts, font loading, etc.). \
+Include these findings in the report alongside the automated checker results.
+3. Group related findings into distinct issues (don't duplicate)
 3. For each issue, provide:
    - A clear title prefixed with category code (e.g., "LINK-001: Internal links point to non-existent nop-go subpages")
    - Severity: Critical (blocks launch - broken functionality, broken links to non-migrated pages), \
@@ -142,8 +146,61 @@ Output valid Markdown following this structure:
 """
 
 
+LLM_REVIEW_PROMPT = """\
+You are a senior QA engineer doing an OPEN-ENDED review of a website migration.
+
+Below are two raw structural snapshots of the same homepage:
+- ORIGINAL: the production site at noclegi.pl
+- MIGRATED: the rewritten version at nop-go.noclegi.pl
+
+The migrated page must be a seamless, invisible replacement. All links to pages that \
+haven't been migrated yet must point back to noclegi.pl (not nop-go.noclegi.pl).
+
+## ORIGINAL page snapshot
+
+{original_snapshot}
+
+## MIGRATED page snapshot
+
+{migrated_snapshot}
+
+## Your task
+
+Analyze BOTH snapshots holistically and find issues that automated checkers might miss. \
+Think creatively — you're the last line of defense before this goes to production. \
+Look for things like:
+
+- Subtle structural differences in the DOM / ARIA tree (missing landmarks, changed hierarchy)
+- Missing or changed <head> elements (favicons, preconnect hints, font loading, stylesheets)
+- Missing or extra third-party scripts (analytics, tracking, A/B testing, chat widgets)
+- Cookie/consent banner differences
+- Image differences (missing alt text, different lazy-loading strategy, different sources)
+- CSS custom property / design token differences
+- Accessibility regressions (missing ARIA labels, changed roles, broken tab order)
+- Internationalization issues (wrong lang attribute, missing hreflang)
+- Different fonts or font-loading strategies
+- Missing or changed favicons / web manifest / PWA elements
+- Anything that feels "off" when comparing the two snapshots
+
+For each finding, provide:
+1. What you found (be specific)
+2. Where it is (quote the relevant snippet)
+3. Why it matters
+4. Severity: Critical / Major / Minor / Info
+
+Output as a numbered list. If everything looks perfect, say so — but look HARD.\
+"""
+
+
 def build_visual_prompt(viewport: str, viewport_size: str) -> str:
     return VISUAL_COMPARISON_PROMPT.format(viewport=viewport, viewport_size=viewport_size)
+
+
+def build_llm_review_prompt(original_snapshot: str, migrated_snapshot: str) -> str:
+    return LLM_REVIEW_PROMPT.format(
+        original_snapshot=original_snapshot,
+        migrated_snapshot=migrated_snapshot,
+    )
 
 
 def build_synthesis_prompt(raw_data: str) -> str:

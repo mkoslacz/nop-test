@@ -21,6 +21,7 @@ class CheckerType(str, Enum):
     FORMS = "forms"
     RESPONSIVE = "responsive"
     PERFORMANCE = "performance"
+    LLM_REVIEW = "llm_review"
 
 
 @dataclass

@@ -1,6 +1,6 @@
 # nop-test
 
-Automated migration audit tool that compares a rewritten homepage (`nop-go.noclegi.pl`) against the original production site (`noclegi.pl`). Runs 8 independent checkers via headless Chromium, then synthesizes findings into a structured, developer-friendly bug report using the Claude API.
+Automated migration audit tool that compares a rewritten homepage (`nop-go.noclegi.pl`) against the original production site (`noclegi.pl`). Runs 9 independent checkers via headless Chromium, then synthesizes findings into a structured, developer-friendly bug report using the Claude API.
 
 Built to validate that the migrated homepage is a **seamless replacement** — visually identical, functionally equivalent, with all links to non-migrated pages pointing back to the original domain.
 
@@ -16,6 +16,7 @@ Built to validate that the migrated homepage is a **seamless replacement** — v
 | `forms` | Search form: location autocomplete, date picker, guest selector, form submission redirect target |
 | `responsive` | Horizontal overflow, mobile hamburger menu, oversized images, small touch targets |
 | `performance` | DOM Content Loaded, TTFB, LCP, total resources, transfer size — flags regressions >20% |
+| `llm_review` | Extracts raw DOM/ARIA tree, `<head>`, scripts, images, styles from both sites and sends them to Claude for open-ended analysis — catches things no coded checker covers |
 
 ## Output
 
@@ -59,7 +60,7 @@ export ANTHROPIC_OAUTH_TOKEN=oat-...       # or OAuth token from Claude Max
 ## Usage
 
 ```bash
-# Full audit with all 8 checkers
+# Full audit with all 9 checkers
 nop-test audit
 
 # Run specific checkers only
@@ -113,8 +114,8 @@ nop-test/
 │   ├── runner.py             # Orchestrator
 │   ├── models/               # Data classes (AuditResult, Issue, Report)
 │   ├── browser/              # Playwright browser management
-│   ├── checkers/             # 8 audit checkers (each independent)
-│   ├── llm/                  # Claude API client + 2-stage synthesizer
+│   ├── checkers/             # 9 audit checkers (each independent)
+│   ├── llm/                  # Claude API client + 3-stage synthesizer
 │   ├── cache/                # JSON result caching with TTL
 │   └── output/               # Markdown report renderer
 └── output/                   # Runtime output (gitignored)
@@ -126,9 +127,10 @@ nop-test/
 ## How synthesis works
 
 1. **Stage 1 — Visual analysis**: Each screenshot pair (original vs migrated, per viewport) is sent to Claude Vision for qualitative comparison
-2. **Stage 2 — Full synthesis**: All raw checker data + visual analyses are combined into a single prompt; Claude generates the final structured report with severity-categorized issues and reproduction steps
+2. **Stage 2 — Open-ended LLM review**: Raw page snapshots (DOM tree, `<head>`, scripts, images, CSS variables) from both sites are sent to Claude with an open-ended prompt — "find anything the automated checkers might have missed". This catches accessibility regressions, missing favicons, font-loading differences, third-party script gaps, etc.
+3. **Stage 3 — Final synthesis**: All checker data + visual analyses + LLM review findings are combined into a single prompt; Claude generates the structured report with severity-categorized issues and reproduction steps
 
-If the raw data exceeds token limits, large link lists are automatically truncated while preserving critical findings (broken/misconfigured links).
+If the raw data exceeds token limits, large link lists and snapshots are automatically truncated while preserving critical findings.
 
 ## License
 
